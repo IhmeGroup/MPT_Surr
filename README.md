@@ -4,7 +4,7 @@ MPT\_Surr is a MATLAB code used to calculate limits in composition for transport
 
 ## How do I get set up? ##
 
-Once `pyIDT` has been used to create the search space, the current code can be used to do the rest. The details are all described in the accompanying publication [1]. 
+Once [pyIDT](https://github.com/gpavanb/pyIDT) has been used to create the search space, the current code can be used to do the rest. The details are all described in the accompanying publication [1]. 
 
 There are only 3 files which you will need to work with
 * `construct_linear` : For MW and H/C constraints only
@@ -14,7 +14,7 @@ There are only 3 files which you will need to work with
 Just modify the `INPUTS` section in the beginning of each of the file to your prescribed surrogates. You might need to modify `set_target_details.m` in the include directory if you want to try out your own surrogate. Obviously, distillation and IDT data have to be computed in such a situation.
 
 ### Prerequisites ###
-This code goes along with the pyIDT package, which is used to create the search space based on ignition delay time. 
+This code goes along with the [pyIDT](https://github.com/gpavanb/pyIDT) package, which is used to create the search space based on ignition delay time. 
 
 All the required packages are based in MATLAB and can be easily installed by downloading the files and adding them to the search path. Please refer to the links provided alongside each package for further instructions regarding installation.
 
