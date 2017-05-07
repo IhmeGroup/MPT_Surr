@@ -1,6 +1,6 @@
 # MPT\_Surr #
 
-MPT\_Surr is a MATLAB code used to calculate limits in composition for transportation fuel mixtures based on experimental uncertainty using several tools from optimization theory. It incorporates MW, H/C ratio, ignition delay time and distillation curve error norm for the time being and is very amenable to utilizing other constraints.
+MPT\_Surr is a MATLAB code used to calculate limits in composition for transportation fuel mixtures based on experimental uncertainty using several tools from optimization theory. It incorporates MW, H/C ratio, TSI (threshold sooting index), ignition delay time and distillation curve error norm for the time being and is very amenable to utilizing other constraints.
 
 ## How do I get set up? ##
 

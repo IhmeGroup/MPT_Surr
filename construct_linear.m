@@ -9,7 +9,7 @@ clc; close all; yalmip('clear');cvx_clear;
 
 % SURROGATE NAME
 surr = 'dooley';
-shape = 'ellipsoid';
+shape = 'both';
 save_output = 0;
 no_graph = 0;
 
@@ -40,7 +40,7 @@ end
 disp('Loaded mechanism');
 
 %% SET TARGET DETAILS
-[palette,palette_label,exp_comp,target_mw,target_hc] = ...
+[palette,palette_label,~,exp_comp,target_mw,target_hc] = ...
     set_target_details(surr);
 
 %%  SET GLOBAL QUANTITIES
@@ -171,6 +171,24 @@ elseif (strcmp(shape,'cuboid'))
     
     disp_cuboid_stats(P,x0_R,diff_R,x0_out,diff_out,y0);
   end
+  
+elseif(strcmp(shape,'both'))
+  % GET ELLIPSOIDS  
+  [Ell_AA,E_AA,Ell,E,x0_AA,x0,y0] = get_ellipsoids(P);
+  
+  % FIT HYPERCUBOIDS
+  A = P.A;
+  b = P.b;
+
+ [x0_R,diff_R,y0] = getInnerCuboid(A,b);
+ [x0_out,diff_out] = getOuterCuboid(A,b);
+ 
+ if (draw_2d)
+    draw_both_2d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output);
+  else
+    draw_both_3d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
+  end  
+    
 end
 
 if (save_output || no_graph)

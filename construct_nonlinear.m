@@ -9,7 +9,10 @@ clc; close all; yalmip('clear');cvx_clear;
 
 % SURROGATE NAME
 surr = 'hanson_a';
-shape = 'cuboid';
+
+% SHAPE (cuboid, ellipsoid, both)
+shape = 'both';
+
 save_output = 0;
 no_graph = 0;
 draw_2d = 0;
@@ -26,6 +29,7 @@ eps_M = 0.125;
 eps_HC = 0.125;
 eps_DC = 0.125;
 eps_IDT = 0.075;
+eps_TSI = 0.250;
 
 % MECHANISM PATH
 mech_path = '/Users/gpavanb/Desktop/Academics/Stanford/Ihme_Research/Surrogates/Mechanisms/POLIMI_TOT';
@@ -50,7 +54,7 @@ end
 disp('Loaded mechanism');
 
 %% SET TARGET DETAILS
-[palette,palette_label,exp_comp,target_mw,target_hc] = ...
+[palette,palette_label,palette_tsi,exp_comp,target_mw,target_hc] = ...
     set_target_details(surr);
 
 %% SET GLOBAL QUANTITIES
@@ -104,6 +108,9 @@ data = filter_dc(data,exp_comp,eps_DC,err);
 % FILTER USING MW AND HC
 data = filter_mw(data,exp_comp,eps_M,gas,sp_index);
 data = filter_hc(data,exp_comp,eps_HC,gas,sp_index);
+
+% FILTER USING TSI
+data = filter_tsi(data,exp_comp,eps_TSI,palette_tsi);
 
 % FILTER USING IDT
 data = filter_idt(data,exp_comp,eps_IDT);
@@ -164,6 +171,25 @@ elseif (strcmp(shape,'cuboid'))
     
     disp_cuboid_stats(P,x0_R,diff_R,x0_out,diff_out,y0);
   end
+
+elseif (strcmp(shape,'both'))
+    
+  % GET ELLIPSOIDS  
+  [Ell_AA,E_AA,Ell,E,x0_AA,x0,y0] = get_ellipsoids(P);
+  
+  % FIT HYPERCUBOIDS
+  A = P.A;
+  b = P.b;
+
+ [x0_R,diff_R,y0] = getInnerCuboid(A,b);
+ [x0_out,diff_out] = getOuterCuboid(A,b);
+ 
+ if (draw_2d)
+    draw_both_2d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output);
+  else
+    draw_both_3d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
+  end
+ 
 end
 
 if (save_output || no_graph)

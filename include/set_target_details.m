@@ -1,4 +1,4 @@
-function [palette,palette_label,exp_comp,target_mw,target_hc] = ...
+function [palette,palette_label,palette_tsi,exp_comp,target_mw,target_hc] = ...
     set_target_details(surr)
 
 
@@ -16,6 +16,13 @@ switch surr
         palette_label = {'n-Propylbenzene', 'n-Dodecane', 'iso-Octane', 'Trimethylbenzene'};
     otherwise
         palette_label = {'Methyl-Cyclohexane', 'Toluene', 'Benzene', 'iso-Octane', 'n-Dodecane'};
+end
+
+% PALETTE TSI
+tsi = load_tsi_database();
+palette_tsi = zeros(length(palette),1);
+for i = 1:length(palette)
+   palette_tsi(i) =tsi.(palette{i});
 end
 
 % EXPERIMENTAL COMPOSITION (MOLE FRACTIONS)

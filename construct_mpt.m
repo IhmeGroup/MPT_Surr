@@ -23,7 +23,7 @@ end
 disp('Loaded mechanism');
 
 %% SET TARGET DETAILS
-[palette,palette_label,exp_comp,target_mw,target_hc] = ...
+[palette,palette_label,~,exp_comp,target_mw,target_hc] = ...
     set_target_details(surr);
 
 %% SET GLOBAL QUANTITIES
