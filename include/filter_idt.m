@@ -1,4 +1,4 @@
-function [data_out] = filter_idt(data,exp_comp,eps)
+function [data_out,target] = filter_idt(data,exp_comp,eps)
 
 palette_size = size(data,2)-1;
 

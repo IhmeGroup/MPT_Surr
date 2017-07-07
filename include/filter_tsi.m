@@ -1,4 +1,4 @@
-function [data_out] = filter_tsi(data,exp_comp,eps,palette_tsi)
+function [data_out,target_tsi] = filter_tsi(data,exp_comp,eps,palette_tsi)
 
 palette_size = size(data,2)-1;
 

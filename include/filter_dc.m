@@ -1,4 +1,4 @@
-function [data_out] = filter_dc(data,exp_comp,eps,err)
+function [data_out,target] = filter_dc(data,exp_comp,eps,err)
 
 palette_size = size(data,2)-1;
 

@@ -1,4 +1,4 @@
-function draw_cuboids_2d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output)
+function draw_cuboids_2d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output,surr)
 
 palette_size = length(palette_label);
 tuples = gen_tuples(1:palette_size-1,2);
@@ -32,7 +32,7 @@ hold on;
 inner = rectangle('Position',[x0_R(idx_1)-diff_R(idx_1) x0_R(idx_2)-diff_R(idx_2) 2*diff_R(idx_1) 2*diff_R(idx_2)],'LineWidth',4,'FaceColor',[1 1 0]);
 outer = rectangle('Position',[x0_out(idx_1)-diff_out(idx_1) x0_out(idx_2)-diff_out(idx_2) 2*diff_out(idx_1) 2*diff_out(idx_2)],'LineWidth',4);
 
-h = plot(exp_comp(idx_1),exp_comp(idx_2),'s','MarkerSize',80);
+h = plot(exp_comp(idx_1),exp_comp(idx_2),'^','MarkerSize',80);
 set(h,'MarkerEdgeColor',[0 0 1],'MarkerFaceColor',[0 0 1]);
 
 % SET LABELS

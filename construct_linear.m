@@ -3,13 +3,13 @@
 % REFER TO LICENSE.pdf ON REPOSITORY FOR USAGE RESTRICTIONS
 
 % clear all;
-clc; close all; yalmip('clear');cvx_clear;
+clc; clearvars; close all; yalmip('clear');cvx_clear;
 
 %% INPUTS
 
 % SURROGATE NAME
 surr = 'dooley';
-shape = 'both';
+shape = 'cuboid';
 save_output = 0;
 no_graph = 0;
 
@@ -23,8 +23,8 @@ verbose = 1;
 useCompositionOnly = true;
 
 % RELATIVE ERROR THRESHOLDS
-eps_M = 0.075;
-eps_HC = 0.075;
+eps_M = 0.05;
+eps_HC = 0.005;
 
 % MECHANISM PATH
 mech_path = '/Users/gpavanb/Desktop/Academics/Stanford/Ihme_Research/Surrogates/Mechanisms/POLIMI_TOT';
@@ -134,10 +134,12 @@ end
 if (strcmp(shape,'ellipsoid')) 
   [Ell_AA,E_AA,Ell,E,x0_AA,x0,y0] = get_ellipsoids(P);
 
-  if (draw_2d)
-    draw_ellipsoids_2d(P,Ell,Ell_AA,exp_comp,palette_label,save_output);
-  else
-    draw_ellipsoids_3d(P,Ell,Ell_AA,exp_comp,palette_label);
+  if (~no_graph)
+      if (draw_2d)
+          draw_ellipsoids_2d(P,Ell,Ell_AA,exp_comp,palette_label,save_output);
+      else
+          draw_ellipsoids_3d(P,Ell,Ell_AA,exp_comp,palette_label);
+      end
   end
 
   % PRINT STATISTICS
@@ -153,22 +155,24 @@ elseif (strcmp(shape,'cuboid'))
     
   %% FIT HYPERCUBOIDS
  [x0_R,diff_R,y0] = getInnerCuboid(A,b);
+ disp('Solving outer cuboid program...');
  [x0_out,diff_out] = getOuterCuboid(A,b);
 
  %% PLOT HYPERCUBOIDS
 
-  if (draw_2d)
-    draw_cuboids_2d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output);
-  else
-    draw_cuboids_3d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
+  if (~no_graph)
+      if (draw_2d)
+          draw_cuboids_2d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output);
+      else
+          draw_cuboids_3d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
+      end
   end
   
   % PRINT STATISTICS
   if (verbose==1)
     disp(palette);
     disp('Exp. composition: ');
-    disp(num2str(exp_comp));
-    
+    disp(num2str(exp_comp));   
     disp_cuboid_stats(P,x0_R,diff_R,x0_out,diff_out,y0);
   end
   
@@ -183,16 +187,30 @@ elseif(strcmp(shape,'both'))
  [x0_R,diff_R,y0] = getInnerCuboid(A,b);
  [x0_out,diff_out] = getOuterCuboid(A,b);
  
- if (draw_2d)
-    draw_both_2d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output);
-  else
-    draw_both_3d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
-  end  
+ if (~no_graph)
+     if (draw_2d)
+         draw_both_2d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output);
+     else
+         draw_both_3d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
+     end
+ end
+ 
+ % PRINT STATISTICS
+  if (verbose==1)
+    disp(palette);
+    disp('Exp. composition: ');
+    disp(num2str(exp_comp));
+    
+    disp_ellipse_stats(P,x0_AA,E_AA,x0,E);
+    disp_cuboid_stats(P,x0_R,diff_R,x0_out,diff_out,y0);
+  end
+ 
+  if (save_output || no_graph)
+      close all;
+  end
     
 end
 
-if (save_output || no_graph)
+if (save_output)
   close all;
 end
-
-

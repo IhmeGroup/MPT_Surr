@@ -22,7 +22,7 @@ end
 tsi = load_tsi_database();
 palette_tsi = zeros(length(palette),1);
 for i = 1:length(palette)
-   palette_tsi(i) =tsi.(palette{i});
+    palette_tsi(i) =tsi.(palette{i});
 end
 
 % EXPERIMENTAL COMPOSITION (MOLE FRACTIONS)
@@ -41,6 +41,8 @@ end
 switch surr
     case 'dooley'
         target_mw = 138.7;
+    case 'test'
+        target_mw = 138.7;
     case 'violi'
         target_mw = 151.3;
     case 'hanson_a'
@@ -51,6 +53,8 @@ end
 
 switch surr
     case 'dooley'
+        target_hc = 1.96;
+    case 'test'
         target_hc = 1.96;
     case 'violi'
         target_hc = 2.08;

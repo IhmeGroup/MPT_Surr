@@ -64,7 +64,7 @@ ylabel(palette_label{idx_2});
 zlabel(palette_label{idx_3});
 
 % EXPERIMENTAL
-h = plot3(exp_comp(idx_1),exp_comp(idx_2),exp_comp(idx_3),'s','MarkerSize',40);
+h = plot3(exp_comp(idx_1),exp_comp(idx_2),exp_comp(idx_3),'^','MarkerSize',40);
 set(h,'MarkerEdgeColor',[0 0 1],'MarkerFaceColor',[0 0 1]);
 
 end

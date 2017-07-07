@@ -37,7 +37,7 @@ set(h_in,'LineWidth',2)
 
 % OUTER CUBOID
 [h_out,~,~] = DrawCuboid(2*diff_outT',x0_outT',[0;0;0],'b',0);
-set(h_out,'EdgeColor',[1 0 0],'LineWidth',2);
+set(h_out,'EdgeColor',[0 0 1],'LineWidth',2);
 
 % SET LABELS
 xlabel(palette_label{idx_1});
@@ -45,8 +45,8 @@ ylabel(palette_label{idx_2});
 zlabel(palette_label{idx_3});
 
 % EXPERIMENTAL
-h = plot3(exp_comp(idx_1),exp_comp(idx_2),exp_comp(idx_3),'s','MarkerSize',40);
-set(h,'MarkerEdgeColor',[0 0 1],'MarkerFaceColor',[0 0 1]);
+h = plot3(exp_comp(idx_1),exp_comp(idx_2),exp_comp(idx_3),'^','MarkerSize',40);
+set(h,'MarkerEdgeColor',[1 0 0],'MarkerFaceColor',[1 0 0]);
 
 end
 

@@ -36,7 +36,7 @@ plot(Ell_AA_Proj,Ell_Proj,opts);
 set(gcf,'Color',[1 1 1]);
 set(gca,'FontSize',40,'FontName','Times New Roman');
 
-h = plot3(exp_comp(idx_1),exp_comp(idx_2),exp_comp(idx_3),'s','MarkerSize',40);
+h = plot3(exp_comp(idx_1),exp_comp(idx_2),exp_comp(idx_3),'^','MarkerSize',40);
 set(h,'MarkerEdgeColor',[1 0 0 ],'MarkerFaceColor',[1 0 0 ]);
 
 a = P_proj.plot();

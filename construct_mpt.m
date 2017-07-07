@@ -7,10 +7,13 @@ clc; close all; yalmip('clear');cvx_clear;
 %% INPUTS
 
 % SURROGATE NAME
-surr = 'violi';
+surr = 'hanson_a';
 
 % TARGET PROPERTIES FLAG
 useCompositionOnly = true;
+
+% SAVE OUTPUT
+save_output = 0;
 
 %% LOAD MECHANISM
 adddir('/Users/gpavanb/Desktop/Academics/Stanford/Ihme_Research/Surrogates/Mechanisms/POLIMI_TOT');
@@ -23,7 +26,7 @@ end
 disp('Loaded mechanism');
 
 %% SET TARGET DETAILS
-[palette,palette_label,~,exp_comp,target_mw,target_hc] = ...
+[palette,palette_label,palette_tsi,exp_comp,target_mw,target_hc] = ...
     set_target_details(surr);
 
 %% SET GLOBAL QUANTITIES
@@ -58,27 +61,32 @@ end
 if (useCompositionOnly)
   target_mw = exp_comp*MW_Vec;
   target_hc = (exp_comp*H_Vec)/(exp_comp*C_Vec);
+  target_tsi = exp_comp*palette_tsi;
 end
 
 %% MPT PROBLEM PARAMETERS
 
 % ERROR THRESHOLDS
 MW_err = 25.0;
+TSI_err = 4.0;
 
 % MPT VARIABLES 
 x = sdpvar(palette_size, 1);
-err = sdpvar(1, 1);
+err = sdpvar(1, 2);
 
 % CONSTRUCT CONSTRAINT MATRIX
-b = [target_mw + err(1); -target_mw + err(1);0;0];
-A = [MW_Vec';-MW_Vec';H_Vec' - target_hc*C_Vec'; -(H_Vec' - target_hc*C_Vec')];
+b = [target_mw + err(1); -target_mw + err(1);target_tsi + err(2); -target_tsi + err(2)];
+A = [MW_Vec';-MW_Vec';palette_tsi';-palette_tsi'];
 
 % CONSTRAINTS
-C = [A*x <= b, x >= 0, sum(x)==1, 0 <= err(1) <= MW_err];
+C = [A*x <= b, x >= 0, sum(x)==1, 0 <= err(1) <= MW_err, 0 <= err(2) <= TSI_err];
 
 %% SOLVE MPT PROBLEM
-x_ax = linspace(0,MW_err,50);
-data = [x_ax];
+x_ax = linspace(0,MW_err,20);
+y_ax = linspace(0,TSI_err,20);
+
+colors = distinguishable_colors(palette_size,'g');
+figure('Position', [100, 100, 1000, 895]);
 
 for i = 1:palette_size
 
@@ -92,10 +100,10 @@ for i = 1:palette_size
     solution = plp.solve();
     
     for j = 1:length(x_ax)
-        Z(j) = solution.xopt.feval(x_ax(j),'obj');
+        for k = 1:length(y_ax)
+            Zl(j,k) = solution.xopt.feval([x_ax(j);y_ax(k)],'obj');
+        end
     end
-    
-    data = [data;Z];
     
     sel = zeros(1,palette_size);
     sel(i) = -1;
@@ -106,47 +114,55 @@ for i = 1:palette_size
     solution = plp.solve();
     
     for j = 1:length(x_ax)
-        Z(j) = -solution.xopt.feval(x_ax(j),'obj');
+        for k = 1:length(y_ax)
+            Zu(j,k) = -solution.xopt.feval([x_ax(j);y_ax(k)],'obj');
+        end
     end
     
-    data = [data;Z];
+    % 3D PLOT
+    
+    hold all;
+    [X,Y] = meshgrid(x_ax,y_ax);
+    hsl = surf(X,Y,Zl);
+    set(hsl,'FaceColor',colors(i,:),'EdgeColor','none');
+    hsu = surf(X,Y,Zu);
+    set(hsu,'FaceColor',colors(i,:),'EdgeColor','none');
 
 end
 
-%% PLOT
-
-figure('Position', [100, 100, 1000, 895]);
-set(0,'DefaultAxesColorOrder',brewermap(palette_size,'Set1')); 
-
-hold all;
-% LOWER BOUNDS
-for j = 1:palette_size
-    plot(data(1,:),data(2*j,:),'--','LineWidth',2);
-end
-
-set(gca,'ColorOrderIndex',1);
-% UPPER BOUNDS
-k = zeros(1,palette_size);
-for j = 1:palette_size
-    k(j) = plot(data(1,:),data(2*j+1,:),'-','LineWidth',2);
-end
-
-set(gca,'ColorOrderIndex',1);
-% EXPERIMENTAL COMPOSITION
-for j = 1:palette_size
-  h = plot(0,exp_comp(j),'^','MarkerSize',20);
-  set(h,'MarkerEdgeColor',get(h,'Color'),'MarkerFaceColor',get(h,'Color'));
-end
 
 set(gcf,'Color',[1 1 1]);
 set(gca,'FontName','Times New Roman','FontSize',32);
 xlabel('\epsilon_{MW}','Interpreter','Tex');
-ylabel('Mole Fraction');
-h0 = plot(-1,-1,'^','MarkerSize',20,'MarkerEdgeColor',[0 0 0],'MarkerFaceColor',[0 0 0]);
-h1 = plot(0,0,'--k','LineWidth',2);
-h2 = plot(0,0,'-k','LineWidth',2);
-legend_array = [{'Experimental'};{'Lower'};{'Upper'};palette'];
-legend([h0,h1,h2,k],legend_array,'Location','eastoutside');
-ylim([0 1]);
- 
+ylabel('\epsilon_{TSI}','Interpreter','Tex');
+zlabel('Mole Fraction');
+
+% EXPERIMENTAL COMPOSITION
+for j = 1:palette_size
+  h = plot3(0,0,exp_comp(j),'^','MarkerSize',20);
+  set(h,'MarkerEdgeColor',colors(j,:),'MarkerFaceColor',colors(j,:));
+end
+
+h0 = plot3(-1,-1,0,'^','MarkerSize',20,'MarkerEdgeColor',[0 0 0],'MarkerFaceColor',[0 0 0]);
+legend_array = [{'Experimental'};palette'];
+
+% UPPER BOUNDS
+for j = 1:palette_size
+    legs(j) = plot3(-1,-1,0,'-','LineWidth',2,'Color',colors(j,:));
+end
+
+legend([h0,legs],legend_array,'Location','eastoutside');
+xlim([0 MW_err]);
+ylim([0 TSI_err]);
+zlim([0 1]);
+
+if (save_output)
+    file_name = strcat('./Plots/WonThreshold/mpt/',surr);
+    savefig(file_name);
+    disp(strcat('Written file: ',file_name));
+    
+    file_name = strcat('./Images/WonThreshold/mpt/',surr,'.pdf');
+    export_fig(file_name);
+    disp(strcat('Written file: ',file_name));
+end
 

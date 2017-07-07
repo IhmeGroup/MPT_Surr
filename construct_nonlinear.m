@@ -3,33 +3,36 @@
 % REFER TO LICENSE.pdf ON REPOSITORY FOR USAGE RESTRICTIONS
 
 % clear all;
-clc; close all; yalmip('clear');cvx_clear;
+clc; clearvars;close all; yalmip('clear');cvx_clear;
 
 %% INPUTS
 
 % SURROGATE NAME
-surr = 'hanson_a';
+surr = 'hanson_b';
 
 % SHAPE (cuboid, ellipsoid, both)
 shape = 'both';
 
 save_output = 0;
-no_graph = 0;
-draw_2d = 0;
+no_graph = 1;
+draw_2d = 1;
 compute_distillation = 0;
 
 % VERBOSITY (1 for output)
-verbose = 1;
+verbose = 2;
 
 % TARGET PROPERTIES FLAG
 useCompositionOnly = true;
 
 % RELATIVE ERROR THRESHOLDS
-eps_M = 0.125;
-eps_HC = 0.125;
-eps_DC = 0.125;
-eps_IDT = 0.075;
-eps_TSI = 0.250;
+eps_M = 0.05;
+eps_HC = 0.005;
+eps_DC = 0.0125;
+eps_IDT = 0.02;
+eps_TSI = 0.04;
+
+% CURRENT CODE PATH
+curr_code_path = pwd;
 
 % MECHANISM PATH
 mech_path = '/Users/gpavanb/Desktop/Academics/Stanford/Ihme_Research/Surrogates/Mechanisms/POLIMI_TOT';
@@ -38,10 +41,10 @@ mech_path = '/Users/gpavanb/Desktop/Academics/Stanford/Ihme_Research/Surrogates/
 dist_code_path = '/Users/gpavanb/Desktop/Academics/Stanford/Ihme_Research/Multicomponent/Droplet_Evap/src';
 
 % IDT DUMP PATH
-idt_data_path = 'Data/eps_half/CSV/';
+idt_data_path = 'Data/won_eps/';
 
 % DISTILLATION DATA PATH
-dist_data_path = 'Data/eps_half/dc_err/';
+dist_data_path = 'Data/won_eps/dc_err/';
 
 %% LOAD MECHANISM
 adddir(mech_path);
@@ -71,8 +74,8 @@ disp('Identified palette compounds');
 
 %% LOAD NONLINEAR DATA FROM pyIDT
 
-file_name = strcat(idt_data_path,surr,'.out');
-data = csvread(file_name);
+file_name = strcat(idt_data_path,surr,'.dat');
+data = dlmread(file_name,',');
 %% COMPUTE DISTILLATION FILTER
 
 if (compute_distillation)
@@ -93,6 +96,10 @@ if (compute_distillation)
       err(i) = distMoleFrac_obj(compounds_file,data(i,1:palette_size),'posf4658_simdist');
       disp([i,data(i,1:palette_size),err(i)]);
   end
+  
+  % WRITE DC ERROR TO FILE
+  chdir(curr_code_path);
+  save(strcat(dist_data_path,surr,'_err.mat'),'err');
 
 else
 
@@ -103,17 +110,17 @@ else
 end
 
 % FILTER USING DISTILLATION CURVE
-data = filter_dc(data,exp_comp,eps_DC,err);
+[data, target_dc] = filter_dc(data,exp_comp,eps_DC,err);
 
 % FILTER USING MW AND HC
 data = filter_mw(data,exp_comp,eps_M,gas,sp_index);
 data = filter_hc(data,exp_comp,eps_HC,gas,sp_index);
 
 % FILTER USING TSI
-data = filter_tsi(data,exp_comp,eps_TSI,palette_tsi);
+[data,target_tsi] = filter_tsi(data,exp_comp,eps_TSI,palette_tsi);
 
 % FILTER USING IDT
-data = filter_idt(data,exp_comp,eps_IDT);
+[data, target_idt] = filter_idt(data,exp_comp,eps_IDT);
 %% CREATE CONVEX HULL
 
 P = Polyhedron(data(:,1:palette_size-1));
@@ -130,10 +137,12 @@ end
 if (strcmp(shape,'ellipsoid')) 
   [Ell_AA,E_AA,Ell,E,x0_AA,x0,y0] = get_ellipsoids(P);
 
-  if (draw_2d)
-    draw_ellipsoids_2d(P,Ell,Ell_AA,exp_comp,palette_label,save_output);
-  else
-    draw_ellipsoids_3d(P,Ell,Ell_AA,exp_comp,palette_label);
+  if (~no_graph)
+      if (draw_2d)
+          draw_ellipsoids_2d(P,Ell,Ell_AA,exp_comp,palette_label,save_output);
+      else
+          draw_ellipsoids_3d(P,Ell,Ell_AA,exp_comp,palette_label);
+      end
   end
 
   % PRINT STATISTICS
@@ -157,11 +166,13 @@ elseif (strcmp(shape,'cuboid'))
 
  %% PLOT HYPERCUBOIDS
 
-  if (draw_2d)
-    draw_cuboids_2d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output);
-  else
-    draw_cuboids_3d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
-  end
+ if (~no_graph)
+     if (draw_2d)
+         draw_cuboids_2d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output);
+     else
+         draw_cuboids_3d(P,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
+     end
+ end
   
   % PRINT STATISTICS
   if (verbose==1)
@@ -184,15 +195,119 @@ elseif (strcmp(shape,'both'))
  [x0_R,diff_R,y0] = getInnerCuboid(A,b);
  [x0_out,diff_out] = getOuterCuboid(A,b);
  
- if (draw_2d)
-    draw_both_2d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output);
-  else
-    draw_both_3d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
+ if (~no_graph)
+     if (draw_2d)
+         draw_both_2d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label,save_output,surr);
+     else
+         draw_both_3d(P,Ell,Ell_AA,x0_R,diff_R,x0_out,diff_out,exp_comp,palette_label);
+     end
+ end
+  
+ % PRINT STATISTICS
+  if (verbose==1)
+    disp(palette);
+    disp('Exp. composition: ');
+    disp(num2str(exp_comp));
+    
+    disp_ellipse_stats(P,x0_AA,E_AA,x0,E);
+    disp_cuboid_stats(P,x0_R,diff_R,x0_out,diff_out,y0);
+    
+  elseif (verbose == 2)
+      
+     % RELOAD NONLINEAR DATA
+     chdir(curr_code_path);
+     file_name = strcat(idt_data_path,surr,'.dat');
+     data = dlmread(file_name,',');
+     
+     % ISOLATE IDT
+     idts = abs(data(:,palette_size+1));
+     
+     % MW DETAILS
+     MW_Vec_full = molecularWeights(gas);
+     MW_Vec = zeros(palette_size,1);
+     for i = 1:palette_size
+         MW_Vec(i) = MW_Vec_full(sp_index(i));
+     end
+     
+     % HC DETAILS
+     H_Vec = zeros(palette_size,1);
+     C_Vec = zeros(palette_size,1);
+     for i = 1:palette_size
+         H_Vec(i) = nAtoms(gas,sp_index(i),'H');
+         C_Vec(i) = nAtoms(gas,sp_index(i),'C');
+     end
+
+     % Constraint bounds
+     fprintf('MW : %f %f \n',target_mw*(1-eps_M),target_mw*(1+eps_M));
+     fprintf('HC : %f %f \n',target_hc*(1-eps_HC),target_hc*(1+eps_HC));
+     fprintf('TSI : %f %f \n',target_tsi*(1-eps_TSI),target_tsi*(1+eps_TSI));
+     fprintf('IDT : %f %f \n',(10^-(target_idt*(1+eps_IDT)))),(10^-(target_idt*(1-eps_IDT)));
+     fprintf('DC : %f %f \n',target_dc*(1-eps_DC),target_dc*(1+eps_DC));
+     
+     % INNER HYPERCUBOID ERRORS
+     
+     fprintf('\n INNER HYPERCUBOID \n');
+     x_test = [x0_R,1-sum(x0_R)];
+     
+     % CALCULATE NEAREST COMPOSITION
+     dist =  zeros(size(data,1),1);
+     for i = 1:size(data,1)
+         dist(i) = norm(x_test(1:palette_size-1)-data(i,1:palette_size-1));
+     end
+     [min_norm,nearest_index] = min(dist);
+     
+     % Compute
+     fprintf('MW : %f \n', dot(x_test,MW_Vec));
+     fprintf('HC : %f \n',dot(x_test,H_Vec)/dot(x_test,C_Vec));
+     fprintf('TSI : %f \n',dot(x_test,palette_tsi));
+     
+     fprintf('IDT : %f \n',idts(nearest_index));
+     fprintf('DC : %f \n',err(nearest_index));
+
+     % AXIS-ALIGNED HYPERELLIPSOID ERRORS
+ 
+     fprintf('\n AXIS-ALIGNED HYPERELLIPSOID \n');
+     x_test = [x0_AA,1-sum(x0_AA)];
+     
+     % CALCULATE NEAREST COMPOSITION
+     dist =  zeros(size(data,1),1);
+     for i = 1:size(data,1)
+         dist(i) = norm(x_test(1:palette_size-1)-data(i,1:palette_size-1));
+     end
+     [min_norm,nearest_index] = min(dist);
+     
+     % Compute
+     fprintf('MW : %f \n', dot(x_test,MW_Vec));
+     fprintf('HC : %f \n',dot(x_test,H_Vec)/dot(x_test,C_Vec));
+     fprintf('TSI : %f \n',dot(x_test,palette_tsi));
+     
+     fprintf('IDT : %f \n',idts(nearest_index));
+     fprintf('DC : %f \n',err(nearest_index));
+     
+     % MAXIMUM VOLUME HYPERELLIPSOID ERRORS
+     
+     fprintf('\n MAXIMUM-VOLUME HYPERELLIPSOID \n');
+     x_test = [x0,1-sum(x0)];
+     
+     % CALCULATE NEAREST COMPOSITION
+     dist =  zeros(size(data,1),1);
+     for i = 1:size(data,1)
+         dist(i) = norm(x_test(1:palette_size-1)-data(i,1:palette_size-1));
+     end
+     [min_norm,nearest_index] = min(dist);
+     
+     % Compute
+     fprintf('MW : %f \n', dot(x_test,MW_Vec));
+     fprintf('HC : %f \n',dot(x_test,H_Vec)/dot(x_test,C_Vec));
+     fprintf('TSI : %f \n',dot(x_test,palette_tsi));
+     
+     fprintf('IDT : %f \n',idts(nearest_index));
+     fprintf('DC : %f \n',err(nearest_index));
+       
   end
  
-end
+  if (save_output || no_graph)
+      close all;
+  end
 
-if (save_output || no_graph)
-  close all;
 end
-

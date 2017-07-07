@@ -1,4 +1,4 @@
-function draw_ellipsoids_2d(P,Ell,Ell_AA,exp_comp,palette_label,save_output)
+function draw_ellipsoids_2d(P,Ell,Ell_AA,exp_comp,palette_label,save_output,surr)
 
 palette_size = length(palette_label);
 tuples = gen_tuples(1:palette_size-1,2);
@@ -39,7 +39,7 @@ plot(Ell_AA_Proj,Ell_Proj,opts);
 set(gcf,'Color',[1 1 1]);
 set(gca,'FontSize',40,'FontName','Times New Roman');
 
-h = plot(exp_comp(idx_1),exp_comp(idx_2),'s','MarkerSize',40);
+h = plot(exp_comp(idx_1),exp_comp(idx_2),'^','MarkerSize',40);
 set(h,'MarkerEdgeColor',[1 0 0 ],'MarkerFaceColor',[1 0 0 ]);
 
 % SET LABELS
