@@ -26,7 +26,7 @@ P_proj = P.projection(dims);
 
 a = P_proj.plot();
 set(a,'LineWidth',4)
-set(a,'EdgeColor',[0 0 0],'FaceColor',[1 1 1]);
+set(a,'EdgeColor',[1 0 0],'FaceColor',[1 1 1]);
 alpha(a,0);
 grid off;
 

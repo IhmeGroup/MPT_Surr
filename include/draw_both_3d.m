@@ -37,9 +37,11 @@ set(gca,'FontSize',40,'FontName','Times New Roman');
 hold on;
 
 % POLYTOPE
-a = plot(P_proj);
+a = P_proj.plot();
 set(a,'LineWidth',4)
-alpha(a,0);
+set(a,'EdgeColor',[0 0 0],'FaceColor',[1 0 0]);
+set(gcf,'Color',[1 1 1]);
+set(gca,'FontSize',40,'FontName','Times New Roman');
 grid off;
 
 % CREATE TRUNCATED COORDINATES

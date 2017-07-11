@@ -40,7 +40,7 @@ h = plot3(exp_comp(idx_1),exp_comp(idx_2),exp_comp(idx_3),'^','MarkerSize',40);
 set(h,'MarkerEdgeColor',[1 0 0 ],'MarkerFaceColor',[1 0 0 ]);
 
 a = P_proj.plot();
-set(a,'LineWidth',4)
+set(a,'LineWidth',2,'EdgeColor',[1 0 0])
 alpha(a,0);
 set(gcf,'Color',[1 1 1]);
 set(gca,'FontSize',32,'FontName','Times New Roman');

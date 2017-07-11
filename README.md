@@ -34,6 +34,6 @@ Please refer to the LICENSE.pdf in the repository. Note that this code requires 
 * Other community or team contact : The code was developed at the Flow Physics and Computational Engineering group at Stanford University. Please direct any official queries to [Prof. Matthias Ihme](mailto:mihme@stanford.edu)
 
 ## References ##
-[1] P.B. Govindaraju, M. Ihme, "Sensitivity to experimental uncertainty in surrogate description of fuels", Combustion and Flame (under review)
+[1] P.B. Govindaraju, M. Ihme, "Formulation of Optimal Surrogate Descriptions of Fuels Considering Sensitivities to Experimental Uncertainties", Combustion and Flame (under review)
 
 Several software packages have also been utilized for this code and their contribution is acknowledged in the 'References' section of [1]. 

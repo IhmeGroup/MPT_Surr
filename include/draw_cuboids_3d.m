@@ -17,7 +17,7 @@ P_proj = P.projection(dims);
 % POLYTOPE
 
 a = plot(P_proj);
-set(a,'LineWidth',4)
+set(a,'LineWidth',2,'EdgeColor',[1 0 0])
 alpha(a,0);
 set(gcf,'Color',[1 1 1]);
 set(gca,'FontSize',32,'FontName','Times New Roman');
