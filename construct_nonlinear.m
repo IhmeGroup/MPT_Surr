@@ -93,7 +93,7 @@ if (compute_distillation)
           otherwise
             compounds_file = 'vihans_surr';
       end
-      err(i) = distMoleFrac_obj(compounds_file,data(i,1:palette_size),'posf4658_simdist');
+      err(i) = distMoleFrac(compounds_file,false,data(i,1:palette_size),'posf4658_simdist','fractional');
       disp([i,data(i,1:palette_size),err(i)]);
   end
   
