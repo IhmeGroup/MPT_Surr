@@ -8,7 +8,7 @@ clc; clearvars;close all; yalmip('clear');cvx_clear;
 %% INPUTS
 
 % SURROGATE NAME
-surr = 'hanson_b';
+surr = 'violi';
 
 % SHAPE (cuboid, ellipsoid, both)
 shape = 'both';
@@ -17,9 +17,11 @@ save_output = 0;
 no_graph = 1;
 draw_2d = 1;
 compute_distillation = 0;
+linear_dcn = 1;
 
 % VERBOSITY (1 for output)
-verbose = 2;
+% 2 for verification
+verbose = 1;
 
 % TARGET PROPERTIES FLAG
 useCompositionOnly = true;
@@ -29,6 +31,7 @@ eps_M = 0.05;
 eps_HC = 0.005;
 eps_DC = 0.0125;
 eps_IDT = 0.02;
+eps_DCN = 0.02;
 eps_TSI = 0.04;
 
 % CURRENT CODE PATH
@@ -57,7 +60,7 @@ end
 disp('Loaded mechanism');
 
 %% SET TARGET DETAILS
-[palette,palette_label,palette_tsi,exp_comp,target_mw,target_hc] = ...
+[palette,palette_label,palette_tsi,palette_dcn,exp_comp,target_mw,target_hc] = ...
     set_target_details(surr);
 
 %% SET GLOBAL QUANTITIES
@@ -119,8 +122,12 @@ data = filter_hc(data,exp_comp,eps_HC,gas,sp_index);
 % FILTER USING TSI
 [data,target_tsi] = filter_tsi(data,exp_comp,eps_TSI,palette_tsi);
 
-% FILTER USING IDT
-[data, target_idt] = filter_idt(data,exp_comp,eps_IDT);
+% FILTER USING IDT/BLENDED DCN
+if (~linear_dcn)
+   [data, target_idt] = filter_idt(data,exp_comp,eps_IDT);
+else
+   [data, target_dcn] = filter_dcn(data,exp_comp,eps_DCN,palette_dcn);
+end
 %% CREATE CONVEX HULL
 
 P = Polyhedron(data(:,1:palette_size-1));

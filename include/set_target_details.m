@@ -1,4 +1,4 @@
-function [palette,palette_label,palette_tsi,exp_comp,target_mw,target_hc] = ...
+function [palette,palette_label,palette_tsi,palette_dcn,exp_comp,target_mw,target_hc] = ...
     set_target_details(surr)
 
 
@@ -35,6 +35,16 @@ switch surr
         exp_comp = [0.1, 0.1, 0.01, 0.25, 0.54];
     case 'hanson_b'
         exp_comp = [0.1, 0.295, 0.01, 0.055, 0.54];
+end
+
+% PURE COMPONENT IDT
+switch surr
+    % TAKEN FROM M.J. Murphy, J.D. Taylor, R.L. McCormick, Compendium of Experimental Cetane
+    % Number Data, National Renewable Energy Laboratory, 2004.
+    case 'dooley'
+        palette_dcn = [28.2,78,17,21.8]';
+    otherwise
+        palette_dcn = [20,9,23,14,78]';
 end
 
 % % TARGET PROPERTIES
