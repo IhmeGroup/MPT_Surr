@@ -14,7 +14,7 @@ save_output = 0;
 no_graph = 0;
 
 % DRAW 2D OR 3D PROJECTIONS (0 for 3D and 1 for 2D)
-draw_2d = 0;
+draw_2d = 1;
 
 % VERBOSITY (1 for output)
 verbose = 1;
@@ -40,7 +40,7 @@ end
 disp('Loaded mechanism');
 
 %% SET TARGET DETAILS
-[palette,palette_label,~,exp_comp,target_mw,target_hc] = ...
+[palette,palette_label,~,~,exp_comp,target_mw,target_hc] = ...
     set_target_details(surr);
 
 %%  SET GLOBAL QUANTITIES
